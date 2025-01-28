@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Time Table</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Class Time Table</h1>
+        <a href="/" class="btn">Back to Dashboard</a>
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < timetable.length; i++) { %>
+                    <tr>
+                        <td>Period <%= i + 1 %></td>
+                        <% for (let j = 0; j < timetable[i].length; j++) { %>
+                            <td contenteditable="true" 
+                                oninput=`updateCell(<%= i %>, <%= j %>, this)`>
+                                <%= timetable[i][j] %>
+                            </td>
+                        <% } %>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <button onclick="saveTimetable()">Save Timetable</button>
+    </div>
+
+    <script>
+        // Function to update individual cell
+        function updateCell(row, col, element) {
+            const value = element.innerText.trim();
+
+            fetch("/update-timetable", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ row, col, value })  // Send updated cell data to backend
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Updated Successfully:", data);
+            })
+            .catch(error => console.error("Error updating timetable:", error));
+        }
+
+        // Function to save entire timetable
+        function saveTimetable() {
+            console.log("Sending Timetable Data:", timetable); // Debugging
+
+            fetch("/save-timetable", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ timetable })  // Send the whole timetable to backend
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Timetable saved successfully:", data);
+                alert("Timetable saved!");
+            })
+            .catch(error => console.error("Error saving timetable:", error));
+        }
+    </script>
+
+</body>
+</html>

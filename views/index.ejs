@@ -12,7 +12,20 @@
         <h1><%= displayData.title %></h1>
         <p class="message"><%= displayData.message %></p>
         <p class="timestamp">Last Updated: <%= displayData.lastUpdated %></p>
+        <a href="/timetable" class="btn">Manage Time Table</a>
     </div>
+
+    <script>
+        function updateTime() {
+            const timeElement = document.getElementById("lastUpdated");
+            const now = new Date();
+            const formattedTime = now.toLocaleString(); // Adjust format as needed
+            timeElement.textContent = formattedTime;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+    </script>
 
 </body>
 </html>
