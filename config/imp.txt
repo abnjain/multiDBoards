@@ -1,0 +1,12 @@
+important things to define in development/debugging time
+
+
+using powershell --> $env:DEBUG="development:chessGame"; $env:GAMEPORT="3020"; $env:MONGO_URI="mongodb://127.0.0.0:27017"; nodemon start
+using cmd --> setx DEBUG "development:*"
+              setx MONGO_URI "mongodb://127.0.0.0:27017"
+              setx GAMEPORT "3020" 
+              nodemon start
+
+MONGO_URI
+GAMEPORT
+development environment 

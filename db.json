@@ -1,0 +1,14 @@
+{
+    "dBoards": {
+      "board1": {
+        "title": "Main Entrance Display",
+        "message": "Hello There" ,
+        "lastUpdated": "2025-01-29T12:00:00Z"
+      },
+      "board2": {
+        "title": "Classroom Display",
+        "message": "Today's Schedule: Math, Science, English",
+        "lastUpdated": "2025-01-29T12:30:00Z"
+      }
+    }
+  }

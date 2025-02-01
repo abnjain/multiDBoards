@@ -1,0 +1,51 @@
+{
+  "users": {
+    "user1": {
+      "userName": "john_doe",
+      "firstName": "John",
+      "lastName": "Doe",
+      "userImage": "https://example.com/images/john.jpg",
+      "dob": "1995-08-15",
+      "age": 28,
+      "email": "john.doe@example.com",
+      "password": "hashed_password_here",
+      "refreshToken": "some_refresh_token"
+    },
+    "user2": {
+      "userName": "jane_smith",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "userImage": "https://example.com/images/jane.jpg",
+      "dob": "1998-05-22",
+      "age": 25,
+      "email": "jane.smith@example.com",
+      "password": "hashed_password_here",
+      "refreshToken": "another_refresh_token"
+    },
+    "user3": {
+      "userName": "mike_jordan",
+      "firstName": "Mike",
+      "lastName": "Jordan",
+      "userImage": "https://example.com/images/mike.jpg",
+      "dob": "1992-11-10",
+      "age": 31,
+      "email": "mike.jordan@example.com",
+      "password": "hashed_password_here",
+      "refreshToken": "refresh_token_mike"
+    }
+  },
+  "displayBoards": {
+      "board1": {
+        "title": "Main Entrance Display",
+        "message": "Hello There" ,
+        "lastUpdated": "2025-01-29T12:00:00Z"
+      },
+      "board2": {
+        "title": "Classroom Display",
+        "message": "Today's Schedule: Math, Science, English",
+        "lastUpdated": "2025-01-29T12:30:00Z"
+      }
+  }
+  
+}
+  

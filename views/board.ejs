@@ -3,9 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Board Change</title>
+    <title>Update Display Board</title>
+    <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
-    
+
+    <div class="container">
+        <h1>Update Display Board</h1>
+
+        <form action="/update-board" method="POST">
+            <label for="boardId">Select Display Board:</label>
+            <select name="boardId" id="boardId" required>
+                <% if (displays) { %>
+                    <% for (let key in displays) { %>
+                        <% if (displays[key] && displays[key].title) { %>
+                            <option value="<%= key %>"><%= displays[key].title %></option>
+                        <% } %>
+                    <% } %>
+                <% } else { %>
+                    <option disabled>No Boards Available</option>
+                <% } %>
+            </select>
+            <br>
+            <br>
+            <label for="message">New Message:</label>
+            <textarea name="message" id="message" required></textarea>
+            <br>
+            <br>
+            <label for="date">Select Date:</label>
+            <input type="date" name="date" id="date" required>
+            <br>
+            <br>
+            <label for="startTime">Start Time:</label>
+            <input type="time" name="startTime" id="startTime" required>
+            <br>
+            <br>
+            <label for="endTime">End Time:</label>
+            <input type="time" name="endTime" id="endTime" required>
+            <br>
+            <br>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+
 </body>
 </html>

@@ -1,0 +1,10 @@
+{
+    "GAME_URI": "http://localhost:",
+    "MONGO_URI": "mongodb://127.0.0.1:27017",
+    "MONGODB_URI": "mongodb+srv://abnjain25:JanmejayJain1JJ1@abnjain.gosenb4.mongodb.net/chessGame",
+    "JWT_SECRET": "21878b06ca2957e27d7c12c9e3f9baf11b4b5779d0bd1e7b80061fe2470f7b3b",
+    "JWT_REFRESH_SECRET": "1e29e1f354308bd43a44ac1f3326b4810d552d7f17f2d821a9e48312b0a5b20c",
+    "EXPRESS_SESSION_SECRET": "3d89a7937ab5d87e39fb4fad8ff38a0c3c1dac0f9a994aadaa350c554e5f6d8c",
+    "PORT": "3020",
+    "DEBUG": "development:*"
+}
