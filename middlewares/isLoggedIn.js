@@ -1,7 +1,6 @@
 const { verifyToken } = require("../utils/jwt");
-const admin = require("firebase-admin");
+const { db } = require("../app");
 
-const db = admin.database();
 const usersRef = db.ref("users");
 
 module.exports = async function (req, res, next) {
