@@ -1,16 +1,29 @@
-const admin = require("firebase-admin");
+// const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
-const { generateHash, compare } = require("../utils/bcrypt");
+// const { generateHash, compare } = require("../utils/bcrypt");
 const { generateAccessToken, generateRefreshToken, verifyToken } = require("../utils/jwt");
 
-const serviceAccount = require("../multidboard-firebase-adminsdk-fbsvc-8dcc5c148b.json"); // Ensure this file is in your root folder
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DB_URL
-});
+const admin = require("firebase-admin");
 
-const db = admin.database(); // Use Firebase RTDB
-const usersRef = db.ref("users"); // Reference to the "users" collection
+// Initialize Firebase Admin SDK (if not initialized already)
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.cert(require("../multidboard-firebase-adminsdk-fbsvc-8dcc5c148b.json")),  // Path to your Firebase service account
+        databaseURL: process.env.FIREBASE_DB_URL  // Ensure this is set in your environment variables
+    });
+}
+
+const db = admin.database();
+const usersRef = db.ref("users");
+
+// const serviceAccount = require("../multidboard-firebase-adminsdk-fbsvc-8dcc5c148b.json"); // Ensure this file is in your root folder
+// admin.initializeApp({
+//     credential: admin.credential.cert(serviceAccount),
+//     databaseURL: process.env.FIREBASE_DB_URL
+// });
+
+// const db = admin.database(); // Use Firebase RTDB
+// const usersRef = db.ref("users"); // Reference to the "users" collection
 
 const displayData = {
     title: "Cloud IoT Display Board",
@@ -19,81 +32,78 @@ const displayData = {
 };
 
 module.exports = {
-    register: async (req, res) => {
-        const { userName, firstName, lastName, userImage, dob, age, email, password } = req.body;
-        try {
-            // Check if user exists by email
-            const snapshot = await usersRef.orderByChild("email").equalTo(email).once("value");
-            if (snapshot.exists()) {
-                req.flash('error', 'User email already exists. Try logging in.');
-                return res.redirect('/register');
-            }
+    // register: async (req, res) => {
+    //     const { userName, firstName, lastName, userImage, dob, age, email, password } = req.body;
+    //     try {
+    //         // Check if user exists by email
+    //         const snapshot = await usersRef.orderByChild("email").equalTo(email).once("value");
+    //         if (snapshot.exists()) {
+    //             req.flash('error', 'User email already exists. Try logging in.');
+    //             return res.redirect('/register');
+    //         }
 
-            // Check if user exists by userName
-            const userNameSnapshot = await usersRef.orderByChild("userName").equalTo(userName).once("value");
-            if (userNameSnapshot.exists()) {
-                req.flash('error', 'Username already exists. Choose another.');
-                return res.redirect('/register');
-            }
+    //         // Check if user exists by userName
+    //         const userNameSnapshot = await usersRef.orderByChild("userName").equalTo(userName).once("value");
+    //         if (userNameSnapshot.exists()) {
+    //             req.flash('error', 'Username already exists. Choose another.');
+    //             return res.redirect('/register');
+    //         }
 
-            const hashedPassword = await generateHash(password);
-            const newUserRef = usersRef.push();
-            await newUserRef.set({
-                id: newUserRef.key,
-                userName,
-                firstName,
-                lastName,
-                userImage,
-                dob,
-                age,
-                email,
-                password: hashedPassword,
-                refreshToken: ""
-            });
+    //         const hashedPassword = await generateHash(password);
+    //         const newUserRef = usersRef.push();
+    //         await newUserRef.set({
+    //             id: newUserRef.key,
+    //             userName,
+    //             firstName,
+    //             lastName,
+    //             userImage,
+    //             dob,
+    //             age,
+    //             email,
+    //             password: hashedPassword,
+    //             refreshToken: ""
+    //         });
 
-            req.flash("success", "Registration successful. You can now log in.");
-            res.status(201).render("login");
-        } catch (error) {
-            console.error("Error during registration:", error.message, error);
-            req.flash("error", "Internal Server Error");
-            res.status(500).json({ error: "Internal Server Error" });
-        }
-    },
+    //         req.flash("success", "Registration successful. You can now log in.");
+    //         res.status(201).render("login");
+    //     } catch (error) {
+    //         console.error("Error during registration:", error.message, error);
+    //         req.flash("error", "Internal Server Error");
+    //         res.status(500).json({ error: "Internal Server Error" });
+    //     }
+    // },
 
     login: async (req, res) => {
-        const { identifier, password } = req.body;
+        const { email, password } = req.body;
         try {
-            let snapshot;
-            if (identifier.includes("@")) {
-                snapshot = await usersRef.orderByChild("email").equalTo(identifier).once("value");
-            } else {
-                snapshot = await usersRef.orderByChild("userName").equalTo(identifier).once("value");
-            }
-
+            const snapshot = await usersRef.orderByChild("email").equalTo(email).once("value");
+            
             if (!snapshot.exists()) {
                 return res.redirect('/login');
             }
-
-            const userData = Object.values(snapshot.val())[0]; // Get user data
-            const userId = Object.keys(snapshot.val())[0]; // Get Firebase-generated user ID
-
-            const isPasswordValid = await compare(password, userData.password);
-            if (!isPasswordValid) {
+    
+            const userData = Object.values(snapshot.val())[0];
+            const userId = Object.keys(snapshot.val())[0];
+    
+            // Compare plain text passwords
+            if (userData.password !== password) {
                 return res.redirect('/login');
             }
-
-            const accessToken = generateAccessToken({ email: userData.email, id: userId });
-            const refreshToken = generateRefreshToken({ email: userData.email, id: userId });
-
+    
+            const accessToken = generateAccessToken({ id: userId, email: userData.email });
+            const refreshToken = generateRefreshToken({ id: userId, email: userData.email });
+    
             await usersRef.child(userId).update({ refreshToken });
-
-            req.session.userId = userId; // Set user ID in session
+    
+            req.session.userId = userId;
             res.cookie('token', accessToken, { httpOnly: true });
             res.cookie('refreshToken', refreshToken, { httpOnly: true });
-
-            res.render('index', { userName: userData.userName, isLoggedIn: true, displayData });
+    
+            console.log("Session userId:", req.session.userId);
+    
+            res.redirect('/'); // Redirect to the index page
         } catch (error) {
-            console.error("Error during login:", error.message, error);
+            console.error("Error during login:", error.message, error.stack);
             return res.redirect('/login');
         }
     },
@@ -109,7 +119,7 @@ module.exports = {
             // Fetch user from Firebase
             const userSnapshot = await usersRef.child(userId).once("value");
             if (!userSnapshot.exists()) {
-                req.flash("error", "User not found");
+                // req.flash("error", "User not found");
                 return res.redirect("/login");
             }
 
@@ -120,7 +130,7 @@ module.exports = {
             res.clearCookie("token");
             res.clearCookie("refreshToken");
 
-            req.flash("success", "User Logout successful");
+            // req.flash("success", "User Logout successful");
             return res.redirect("/login");
         } catch (error) {
             console.error("Error during logout:", error.message, error);
