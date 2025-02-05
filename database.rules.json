@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "displays": {
+      ".read": true,
+      ".write": true
+    },
+    "users": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["email"]
+    },
+    ".read": "now < 1740681000000", 
+    ".write": "now < 1740681000000"  
+  }
+}

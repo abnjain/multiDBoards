@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "multidboard"
-  }
+    "default": "multidboard",
+    "development": "multidboard"
+  },
+  "targets": {},
+  "etags": {}
 }

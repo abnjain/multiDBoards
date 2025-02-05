@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.cert(require("./multidboard-firebase-adminsdk-fbsvc-bcdd778bd2.json")),
+        credential: admin.credential.cert(require("./multidboard-firebase-adminsdk-fbsvc-858f89b286.json")),
         databaseURL: process.env.FIREBASE_DB_URL
     });
 }
@@ -150,34 +150,18 @@ app.post("/update-board", isLoggedIn, async (req, res) => {
 
 
 
-// // Route to fetch a specific board's details
-// app.get("/display/:id", async (req, res) => {
-//     const boardId = req.params.id;
-
-//     try {
-//         const boardSnapshot = await displaysRef.child(boardId).once("value");
-//         const board = boardSnapshot.val();
-
-//         if (!board) {
-//             return res.status(404).send("Display board not found.");
-//         }
-
-//         res.render("display", { board });
-
-        
-//         if (!boardDoc.exists) {
-//             return res.status(404).send("Display board not found.");
-//         }
-
-//         res.render("display", { board: boardDoc.data() });
-//     } catch (error) {
-//         console.error("Error fetching display board:", error);
-//         res.status(500).send("Error fetching display board.");
-//     }
+// Remove the app.listen() call for deployment
+// app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
 // });
 
-app.listen(port, ()=>{
-    console.log(`Server is running on http://localhost:${port}`);
-});
+// // Export the Express app as a Cloud Function
+// const functions = require("firebase-functions");
+// exports.app = functions.https.onRequest(app);
 
-// module.exports = { admin, db, usersRef, displaysRef };
+// Optionally, you can still run the server locally:
+// if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server is running on http://localhost:${port}`);
+    });
+// }
