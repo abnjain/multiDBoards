@@ -8,7 +8,7 @@
       "dob": "1995-08-15",
       "age": 28,
       "email": "john.doe@example.com",
-      "password": "12345678",
+      "password": "hashed_password_here",
       "refreshToken": "some_refresh_token"
     },
     "user2": {
@@ -19,7 +19,7 @@
       "dob": "1998-05-22",
       "age": 25,
       "email": "jane.smith@example.com",
-      "password": "12345678",
+      "password": "hashed_password_here",
       "refreshToken": "another_refresh_token"
     },
     "user3": {
@@ -30,7 +30,7 @@
       "dob": "1992-11-10",
       "age": 31,
       "email": "mike.jordan@example.com",
-      "password": "12345678",
+      "password": "hashed_password_here",
       "refreshToken": "refresh_token_mike"
     }
   },
@@ -45,84 +45,7 @@
         "message": "Today's Schedule: Math, Science, English",
         "lastUpdated": "2025-01-29T12:30:00Z"
       }
-  },
-  "timetable": {
-    "Friday": {
-      "10:00": "LAB-Data Mining & Warehousing-Dr. Archana Thakur-Mtech[SE&IA]",
-      "11:00": "Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "12:00": "LAB-Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "13:00": "LUNCH BREAK",
-      "13:30": "Internet Programming Using JAVA-Mr. Chetan Awasthi-Mtech[SE&IA]",
-      "14:30": "REMEDIAL CLASS",
-      "15:30": "",
-      "17:30": "Dr. Sanjay Tanwani -  IoT  -  3MCA  [Batch-B]",
-      "18:30": "xyz...........",
-      "19:30": "ZYX........"
-    },
-    "Monday": {
-      "10:00": "LAB-Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "11:00": "Advanced Software Engineering-Mr. Himanshu Kamal Verma-Mtech[SE&IA]",
-      "12:00": "Advanced Software Engineering-Mr. Himanshu Kamal Verma-Mtech[SE&IA]",
-      "13:00": "LUNCH BREAK",
-      "13:30": "Internet Programming Using JAVA-Mr. Chetan Awasthi-Mtech[SE&IA]",
-      "14:30": "Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "15:30": "LAB-Internet Programming Using JAVA-Mr. Chetan Awasthi-Mtech[SE&IA]",
-      "17:30": "Dr. Nitin Uikey - Cloud Computing -  3MCA  [Batch-B]",
-      "18:30": "xyz...........",
-      "19:30": "ZYX........"
-    },
-    "Saturday": {
-      "10:00": "LAB-Data Mining & Warehousing-Dr. Archana Thakur-Mtech[SE&IA]",
-      "11:00": "Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "12:00": "Advanced Software Engineering-Mr. Himanshu Kamal Verma-Mtech[SE&IA]",
-      "13:00": "LUNCH BREAK",
-      "13:30": "LAB-Information System Design-Dr. Archana Thakur-Mtech[SE&IA]",
-      "14:30": "LAB-Information System Design-Dr. Archana Thakur-Mtech[SE&IA]",
-      "15:30": "",
-      "17:30": "hellDr. Sanjay Tanwani -  IoT  -  3MCA  [Batch-B]o moto",
-      "18:30": "xyz...........",
-      "19:30": "ZYX........"
-    },
-    "Thursday": {
-      "10:00": "LAB-Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "11:00": "Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "12:00": "Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "13:00": "LUNCH BREAK",
-      "13:30": "Internet Programming Using JAVA-Mr. Chetan Awasthi-Mtech[SE&IA]",
-      "14:30": "Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "15:30": "Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "17:30": "Dr. Sanjay Tanwani -  IoT  -  3MCA  [Batch-B]",
-      "18:30": "xyz...........",
-      "19:30": "ZYX........"
-    },
-    "Tueday": {
-      "00:00": "XYZ........",
-      "01:00": "xyz.......",
-      "10:00": "LAB-Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "11:00": "LAB-Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "12:00": "Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "13:00": "LhfsNCH BREAK",
-      "13:30": "Advanced Software Engineering-Mr. Himanshu Kamal Verma-Mtech[SE&IA]",
-      "14:30": "LAB-Advanced Software Engineering-Dr. Nitin Uikey-Mtech[SE&IA]",
-      "15:30": "LAB-Internet Programming Using JAVA-Dr.Preeti Saxena-Mtech[SE&IA]",
-      "17:30": "Dr. Nitin Uikey - Cloud Computing -  3MCA  [Batch-B]",
-      "18:30": "xyz...........",
-      "19:30": "ZYX........"
-    },
-    "Wednesday": {
-      "01:30": "Ms.Minal Kumari",
-      "02:30": "Ms.Minal Kumari",
-      "10:00": "LAB-Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "11:00": "Data Mining & Warehousing-Dr. Shraddha Masih-Mtech[SE&IA]",
-      "12:00": "Information System Design-Dr. Ugrasen Suman-Mtech[SE&IA]",
-      "13:00": "LUNCH BREAK",
-      "13:30": "Internet Programming Using JAVA-Mr. Chetan Awasthi-Mtech[SE&IA]",
-      "14:30": "Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "15:30": "Information Architecture-Dr. Sanjay Tanwani-Mtech[SE&IA]",
-      "17:30": "Dr. Nitin Uikey - Cloud Computing -  3MCA  [Batch-B]",
-      "18:30": "Its been 06:30 in the evening, time to wrap things off :)",
-      "19:30": "ZYX........"
-    }
-    }
   }
+  
+}
   

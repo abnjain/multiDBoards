@@ -1,11 +1,22 @@
 {
   "hosting": {
-  "public": "public",
-  "rewrites": [
-    {
-      "source": "**",
-      "function": "app"
-    }
-  ]
-}
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "function": "app"
+      }
+    ]
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "functions": {
+    "source": "functions"
+  }
 }

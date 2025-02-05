@@ -1,20 +1,8 @@
-// const admin = require("firebase-admin");
-const jwt = require("jsonwebtoken");
-// const { generateHash, compare } = require("../utils/bcrypt");
+const { generateHash, compare } = require("../utils/bcrypt");
 const { generateAccessToken, generateRefreshToken, verifyToken } = require("../utils/jwt");
 
-const admin = require("firebase-admin");
-
-// Initialize Firebase Admin SDK (if not initialized already)
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(require("../multidboard-firebase-adminsdk-fbsvc-8dcc5c148b.json")),  // Path to your Firebase service account
-        databaseURL: process.env.FIREBASE_DB_URL  // Ensure this is set in your environment variables
-    });
-}
-
-const db = admin.database();
-const usersRef = db.ref("users");
+// Import Firebase config (initializes Firebase Admin SDK)
+const { usersRef } = require("../config/firebase");
 
 // const serviceAccount = require("../multidboard-firebase-adminsdk-fbsvc-8dcc5c148b.json"); // Ensure this file is in your root folder
 // admin.initializeApp({
@@ -107,6 +95,7 @@ module.exports = {
             return res.redirect('/login');
         }
     },
+    
 
     logout: async (req, res) => {
         const accessToken = req.cookies.token;
