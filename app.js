@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.cert(require("./multidboard-firebase-adminsdk-fbsvc-221d0b219f.json")),
+        credential: admin.credential.cert(require("./multidboard-firebase-adminsdk-fbsvc-bcdd778bd2.json")),
         databaseURL: process.env.FIREBASE_DB_URL
     });
 }
