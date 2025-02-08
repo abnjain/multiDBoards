@@ -9,9 +9,10 @@
 <body>
 
     <div class="container">
+        <a href="/" class="btn">Back to Dashboard</a>
         <h1>Update Display Board</h1>
 
-        <form action="/update-board" method="POST">
+        <form action="/board/update-board" method="POST">
             <label for="boardId">Select Display Board:</label>
             <select name="boardId" id="boardId" required>
                 <% if (displays) { %>

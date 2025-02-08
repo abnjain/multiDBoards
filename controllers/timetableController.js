@@ -1,0 +1,65 @@
+const path = require("path");
+const fs = require("fs");
+
+// Import Firebase config (initializes Firebase Admin SDK)
+const { db, usersRef, displaysRef, timetableRef } = require("../config/firebase");
+
+// Path to the JSON file
+const timetablePath = path.join(__dirname, "../timetable.json");
+
+// Load timetable from JSON file
+function loadTimetable() {
+    if (!fs.existsSync(timetablePath)) {
+        return Array(8).fill(null).map(() => Array(6).fill(""));  // Ensuring a valid 8x6 matrix
+    }
+    return JSON.parse(fs.readFileSync(timetablePath, "utf8"));
+}
+
+// Save timetable to JSON file
+function saveTimetable(timetable) {
+    try {
+        fs.writeFileSync(timetablePath, JSON.stringify(timetable, null, 2));
+        console.log("Timetable saved successfully.");
+    } catch (error) {
+        console.error("Error saving timetable:", error);
+    }
+}
+// Load initial timetable
+let timetable = loadTimetable()
+
+module.exports = {
+    viewTT: (req, res) => {
+        res.render("timetable", { timetable });
+    },
+
+    saveTT: (req, res) => {
+        console.log("Received Timetable Data:", req.body);
+    
+        let { timetable } = req.body;
+    
+        if (!Array.isArray(timetable)) {
+            return res.status(400).json({ success: false, message: "Invalid timetable format" });
+        }
+    
+        saveTimetable(timetable);
+        res.json({ success: true, message: "Timetable saved successfully" });
+    },
+
+    updateTT: (req, res) => {
+        const { row, col, value } = req.body;
+    
+        // Ensure that row and col are within the valid range
+        if (row < 0 || row >= timetable.length || col < 0 || col >= timetable[row].length) {
+            return res.status(400).json({ success: false, message: "Invalid cell position" });
+        }
+    
+        // Update the timetable cell
+        timetable[row][col] = value;
+    
+        // Save the updated timetable
+        saveTimetable(timetable);
+    
+        res.json({ success: true, message: "Timetable updated successfully" });
+    }
+
+}
