@@ -2,10 +2,9 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const fs = require("fs");
-const bodyParser = require("body-parser");
-const admin = require("firebase-admin");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const MemoryStore = require('memorystore')(session);
 
 
 // require("./config/mongoDB");
@@ -21,7 +20,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your_secret_key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set `secure: true` in production with HTTPS
+    cookie: { secure: process.env.NODE_ENV === 'production' }, // use secure cookies in production
+    store: new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    })
 }));
 
 // Use cookie-parser before routes
@@ -29,20 +31,6 @@ app.use(cookieParser());
 
 const isLoggedIn = require("./middlewares/isLoggedIn");
 const userRouter = require("./routes/userRoute");
-
-// // Firebase Admin SDK Setup
-// const serviceAccount = require("./multidboard-firebase-adminsdk-fbsvc-be01448dfd.json"); // Ensure this file is in your root folder
-
-// if (!admin.apps.length) {
-//     admin.initializeApp({
-//         credential: admin.credential.cert(require("./multidboard-firebase-adminsdk-fbsvc-221d0b219f.json")),
-//         databaseURL: process.env.FIREBASE_DB_URL
-//     });
-// }
-
-// const db = admin.database(); // Use Realtime Database instead of Firestore
-// const displaysRef = db.ref("displayBoards"); // Define the reference to your Realtime Database
-// const usersRef = db.ref("users"); // Define the reference to your Realtime Database
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
