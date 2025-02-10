@@ -41,12 +41,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
-// Dummy data for display board
-const displayData = {
-    title: "Cloud IoT Display Board",
-    message: "Welcome to Smart Display!",
-    lastUpdated: new Date().toLocaleString(),
-  };
 
 // Routing to different routes
 app.use("/auth", userRouter);
@@ -59,10 +53,17 @@ app.get("/login", (req, res) => {
 });
 
 // Home route
-app.get("/", isLoggedIn, (req, res, next) => {
-    const userId = req.session.userId; // Retrieve userId from the session
-    res.render("index", { displayData, userId });
+app.get("/", isLoggedIn, (req, res) => {
+    const displayData = req.session.displayData || {
+        title: "Cloud IoT Display Board",
+        message: "Welcome to Smart Display!",
+        lastUpdated: new Date().toLocaleString()
+    };
+    console.log("🚀 Display Data:", displayData);
+    
+    res.render("index", { displayData, userId: req.session.userId });
 });
+
 
 app.listen(port, ()=>{
     console.log(`Server is running on http://localhost:${port}`);

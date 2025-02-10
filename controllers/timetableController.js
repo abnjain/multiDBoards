@@ -28,8 +28,19 @@ function saveTimetable(timetable) {
 let timetable = loadTimetable()
 
 module.exports = {
-    viewTT: (req, res) => {
-        res.render("timetable", { timetable });
+    viewTT: async (req, res) => {
+        try {
+            // 🔹 Fetch timetable data from Firebase Realtime Database
+            const timetableSnapshot = await timetableRef.once("value");
+            const timetableData = timetableSnapshot.val() || {}; // Ensure it's not null
+    
+            // console.log("✅ Timetable Data from Firebase:", JSON.stringify(timetableData, null, 2));
+    
+            res.render("timetable", { timetable: timetableData });
+        } catch (error) {
+            console.error("❌ Error fetching timetable data:", error);
+            res.status(500).send("Internal Server Error");
+        }
     },
 
     saveTT: (req, res) => {

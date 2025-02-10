@@ -10,9 +10,12 @@
 
     <div><a href="/auth/logout" class="lOutBtn">Logout</a></div>
     <div class="container">
+        <div id="displayDataJSON" style="display:none;">
+            <%= JSON.stringify(displayData) %>
+        </div>
         <h1><%= displayData.title %></h1>
         <p class="message"><%= displayData.message %></p>
-        <p class="timestamp">Last Updated: <%= displayData.lastUpdated %></p>
+        <p class="timestamp" id="lastUpdated">Last Updated: <%= displayData.lastUpdated %></p>
         <a href="/tt/view-timetable" class="btn">Manage Time Table</a>
         <br>
         <a href="/board/board" class="btn">Change Board</a>
@@ -21,14 +24,14 @@
     <script>
         function updateTime() {
             const timeElement = document.getElementById("lastUpdated");
-            const now = new Date();
-            const formattedTime = now.toLocaleString(); // Adjust format as needed
-            timeElement.textContent = formattedTime;
+            if(timeElement) {
+                const now = new Date();
+                timeElement.textContent = "Last Updated: " + now.toLocaleString(); // include the prefix if desired
+            }
         }
-
         // Update time every second
         setInterval(updateTime, 1000);
-    </script>
+      </script>      
 
 </body>
 </html>
