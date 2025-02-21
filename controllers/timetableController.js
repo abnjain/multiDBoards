@@ -33,10 +33,26 @@ module.exports = {
             // 🔹 Fetch timetable data from Firebase Realtime Database
             const timetableSnapshot = await timetableRef.once("value");
             const timetableData = timetableSnapshot.val() || {}; // Ensure it's not null
-    
-            // console.log("✅ Timetable Data from Firebase:", JSON.stringify(timetableData, null, 2));
-    
-            res.render("timetable", { timetable: timetableData });
+
+            console.log("✅ Timetable Data from Firebase:", JSON.stringify(timetableData, null, 2));
+
+            // 🔹 Extract Days & Times (Sorting times in order)
+            const days = Object.keys(timetableData);
+            const times = [...new Set(days.flatMap(day => Object.keys(timetableData[day])))]
+                .sort((a, b) => a.localeCompare(b)); // Sort times in ascending order
+
+            // 🔹 Convert to structured array for rendering
+            const structuredTimetable = times.map(time => {
+                const row = { time };
+                days.forEach(day => {
+                    row[day] = timetableData[day][time] || ""; // If no entry, leave blank
+                });
+                return row;
+            });
+
+            // 🔹 Render timetable.ejs
+            res.render("timetable", { timetable: structuredTimetable, days, times });
+
         } catch (error) {
             console.error("❌ Error fetching timetable data:", error);
             res.status(500).send("Internal Server Error");

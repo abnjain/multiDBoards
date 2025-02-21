@@ -9,29 +9,26 @@
 <body>
 
     <div class="container">
-        <h1>Class Time Table</h1>
         <a href="/" class="btn">Back to Dashboard</a>
+        <h1>Class Time Table</h1>
 
         <table border="1">
             <thead>
                 <tr>
-                    <th>Period</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
+                    <th>Time</th>
+                    <% for (let day of days) { %>
+                        <th><%= day %></th>
+                    <% } %>
                 </tr>
             </thead>
             <tbody>
-                <% for (let i = 0; i < timetable.length; i++) { %>
+                <% for (let entry of timetable) { %>
                     <tr>
-                        <td>Period <%= i + 1 %></td>
-                        <% for (let j = 0; j < timetable[i].length; j++) { %>
-                            <td contenteditable="true" 
-                                oninput=`updateCell(<%= i %>, <%= j %>, this)`>
-                                <%= timetable[i][j] %>
+                        <td><%= entry.time %></td>
+                        <% for (let day of days) { %>
+                            <td contenteditable="true"
+                                oninput="updateCell('<%= entry.time %>', '<%= day %>', this)">
+                                <%= entry[day] %>
                             </td>
                         <% } %>
                     </tr>
@@ -43,13 +40,13 @@
 
     <script>
         // Function to update individual cell
-        function updateCell(row, col, element) {
+        function updateCell(time, day, element) {
             const value = element.innerText.trim();
 
-            fetch("/update-timetable", {
+            fetch("/tt/update-timetable", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ row, col, value })  // Send updated cell data to backend
+                body: JSON.stringify({ time, day, value })  // Send updated cell data to backend
             })
             .then(response => response.json())
             .then(data => {
@@ -60,9 +57,7 @@
 
         // Function to save entire timetable
         function saveTimetable() {
-            console.log("Sending Timetable Data:", timetable); // Debugging
-
-            fetch("/save-timetable", {
+            fetch("/tt/save-timetable", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ timetable })  // Send the whole timetable to backend

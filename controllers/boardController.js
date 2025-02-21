@@ -20,10 +20,15 @@ module.exports = {
         }
 
         try {
+            // Fetch existing board data to keep all key-value pairs
+            const boardSnapshot = await displaysRef.child(boardId).once("value");
+            const existingBoardData = boardSnapshot.val() || {}; // Get existing data or empty object
+
             // Define timeRange explicitly
             const timeRange = `${startTime} to ${endTime}`;
     
             const boardData = { 
+                ...existingBoardData,
                 boardId, 
                 message, 
                 date, 
@@ -35,25 +40,26 @@ module.exports = {
     
             // Update Firebase with the boardData object
             await displaysRef.child(boardId).update(boardData);
-            await eventsRef.child("message").update(boardData);
+            const eventMessage = {
+                boardId
+            };
+            await eventsRef.child("message").update(eventMessage);
     
             // Fetch timetable data
-            let timetableSnapshot = await eventsRef.child("timetable").once("value");
+            let timetableSnapshot = await timetableRef.once("value");
             let timetable = timetableSnapshot.val();
     
             // If no event timetable exists, fetch from timetableRef
-            if (!timetable) {
-                timetableSnapshot = await timetableRef.once("value");
-                timetable = timetableSnapshot.val();
-            }
-
+            timetableSnapshot = await timetableRef.once("value");
+            timetable = timetableSnapshot.val();
+            
             // ✅ Store updated displayData in session
             req.session.displayData = {
                 title: "Cloud IoT Display Board",
                 message: message,
                 lastUpdated: new Date().toLocaleString()
             };
-    
+            
             // Render the page with board details and timetable
             res.render("currentDisplay", { board: boardData, timetable, displayData: req.session.displayData });
         } catch (error) {
@@ -68,7 +74,7 @@ module.exports = {
     
             if (!timetable || !board) {
                 return res.status(400).json({ success: false, message: "Invalid data provided" });
-            }
+            }            
     
             // ✅ Clear message first
             await eventsRef.child("message").set(null);
@@ -86,11 +92,10 @@ module.exports = {
                 title: "Cloud IoT Display Board",
                 message: isTimetableEmpty
                     ? `Message on board --> \n ${board.message}`
-                    : `Displaying Current Timetable on board ${board.title}`,
+                    : `Displaying Current Timetable on ${board.boardId}`,
                 lastUpdated: new Date().toLocaleString()
             };
     
-            console.log("✅ Updated session displayData:", req.session.displayData);
             // // ✅ Force session to save immediately
             // req.session.save((err) => {
             //     if (err) {

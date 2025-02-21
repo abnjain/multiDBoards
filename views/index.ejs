@@ -14,7 +14,12 @@
             <%= JSON.stringify(displayData) %>
         </div>
         <h1><%= displayData.title %></h1>
-        <p class="message"><%= displayData.message %></p>
+        <% if (displayData.message == "Welcome to Smart Display!") { %>
+            <p class="message">Welcome to Smart Display!</p>
+            <% } else { %>
+            <p class="message">Currently Displaying: <%= displayData.message %></p>
+        <% } %>
+        
         <p class="timestamp" id="lastUpdated">Last Updated: <%= displayData.lastUpdated %></p>
         <a href="/tt/view-timetable" class="btn">Manage Time Table</a>
         <br>

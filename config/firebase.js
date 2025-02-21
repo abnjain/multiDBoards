@@ -5,7 +5,7 @@ require("dotenv").config();
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(
-      require("../multidboard-firebase-adminsdk-fbsvc-36e996cef7.json")
+      require("../multidboard-firebase-adminsdk-fbsvc-3c68048ca9.json")
     ),
     databaseURL: process.env.FIREBASE_DB_URL
   });

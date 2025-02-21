@@ -9,19 +9,42 @@
 <body>
     <div class="container">
         <h1>Current Display Board</h1>
+        <p><strong>Board Name:</strong> <%= board.title %></p>
         <p><strong>Message:</strong> <span id="boardMessage"><%= board.message %></span></p>
         <p><strong>Date:</strong> <%= board.date %></p>
         <p><strong>Time:</strong> <%= board.timeRange %></p> <!-- Updated to use timeRange -->
         
         <button id="backButton" onclick="backToDash()" class="btn">Back To Dashboard</button>
-        <button id="toggleButton" class="btn" onclick="toggleTimetable()">Display Current TT</button>
-        <div id="timetableContainer" style="display: none;">
+        <!-- <button id="toggleButton" class="btn" onclick="toggleTimetable()">Display TT</button> -->
+
+        <!-- Dropdown for selecting a class timetable -->
+        <!-- <label class="timetableContainer" style="display: none;" for="classSelect"><strong>Select Class:</strong></label> -->
+        <!-- <select class="classSelect" onchange="loadTimetable()"> -->
+            <!-- <option class="timetableContainer" value="">-- Select Class --</option> -->
+            <!-- <% for (let className in timetable) { %> -->
+                <!-- <option class="timetableContainer" value="<%= className %>"><%= className %></option> -->
+            <!-- <% } %> -->
+        <!-- </select>  -->
+
+        <!-- <div id="timetableContainer" style="display: none;">
             <h2>Timetable</h2>
             <table border="1" cellspacing="0" cellpadding="5">
                 <tr>
                     <th>Time</th>
                     <th>Subject</th>
                 </tr>
+                <tbody id="timetableBody"></tbody>
+            </table>
+        </div>
+    </div> -->
+        <!-- <div id="timetableContainer" style="display: none;">
+            <h2>Timetable</h2>
+            <table border="1" cellspacing="0" cellpadding="5">
+                <tr>
+                    <th>Time</th>
+                    <th>Subject</th>
+                </tr>
+                <%= timetable.MtechCS2Sem %>
                 <% if (timetable) { %>
                     <% for (let time in timetable) { %>
                         <tr>
@@ -33,9 +56,9 @@
                     <tr><td colspan="2">No timetable available</td></tr>
                 <% } %>
             </table>
-        </div>
+        </div> -->
 
-        <button id="saveButton" onclick="saveTimetable()" style="display: none;">Save Timetable</button>
+        <!-- <button id="saveButton" onclick="saveTimetable()" style="display: none;">Save Timetable</button> -->
     </div>
 
     <script>
@@ -47,9 +70,9 @@
                 const displayData = `<%- JSON.stringify(displayData) %>`;
 
                 // ✅ Update the message in displayData
-                displayData.message = boardMessage;
+                // displayData.message = boardMessage;
 
-                console.log("✅ Sending updated displayData:", displayData);
+                // console.log("✅ Sending updated displayData:", displayData);
 
                 // ✅ Store displayData in sessionStorage
                 sessionStorage.setItem("displayData", JSON.stringify(displayData));
@@ -62,80 +85,109 @@
             }
         }
 
-        window.onload = function () {
-            const displayData = sessionStorage.getItem("displayData");
-            if (displayData) {
-                const parsedData = JSON.parse(displayData);
-                console.log("🚀 Display Data from Session:", parsedData);
-                document.getElementById("boardMessage").textContent = parsedData.message;
-            }
-        };
+        // window.onload = function () {
+        //     console.log("🚀 Loading board data...");
+        //     console.log();
+            
+        //     const boardData = `<%- JSON.stringify(board) %>`;
+        //     console.log("✅ Board Data:", boardData);
 
-        function toggleTimetable() {
-            const timetableContainer = document.getElementById("timetableContainer");
-            const saveButton = document.getElementById("saveButton");
-            const toggleButton = document.getElementById("toggleButton");
+        //     if (boardData && boardData.message) {
+        //         document.getElementById("boardMessage").textContent = board.message;
+        //     } else {
+        //         console.error("❌ Board message not found!");
+        //     }
+        // };
 
-            if (timetableContainer.style.display === "none") {
-                timetableContainer.style.display = "block";
-                saveButton.style.display = "block";
-                toggleButton.textContent = "Hide Timetable";
-            } else {
-                timetableContainer.style.display = "none";
-                saveButton.style.display = "none";
-                toggleButton.textContent = "Display Current TT";
-            }
-        }
+        // Function to load the timetable based on the selected class
+        // function loadTimetable() {
+        //     const selectedClass = document.getElementsByClassName("classSelect").value;
+        //     const timetableData = `<%- JSON.stringify(timetable) %>`;
 
-        async function saveTimetable() {
-            try {
-                console.log("✅ Save button clicked");
-    
-                let timetableData = {};
-                const rows = document.querySelectorAll("#timetableContainer table tr");
-    
-                rows.forEach((row, index) => {
-                    if (index === 0) return; // Skip header row
-                    const cells = row.getElementsByTagName("td");
-                    if (cells.length === 2) {
-                        timetableData[cells[0].textContent] = cells[1].textContent;
-                    }
-                });
-    
-                // Get full board details from the page
-                const boardData = {
-                    boardId: "<%= board.boardId %>",  // Ensure this is passed in EJS
-                    message: document.getElementById("boardMessage").textContent,
-                    date: "<%= board.date %>",
-                    startTime: "<%= board.startTime %>",
-                    endTime: "<%= board.endTime %>",
-                    timeRange: "<%= board.timeRange %>",
-                    lastUpdated: "<%= board.lastUpdated %>"
-                };
+        //     if (!selectedClass) {
+        //         document.getElementsByClassName("timetableContainer").style.display = "none";
+        //         return;
+        //     }
 
-                console.log("✅ Sending timetable and full board object:", timetableData, boardData);
+        //     const timetableBody = document.getElementById("timetableBody");
+        //     timetableBody.innerHTML = ""; // Clear previous data
+
+        //     if (timetableData[selectedClass]) {
+        //         for (const [time, subject] of Object.entries(timetableData[selectedClass])) {
+        //             const row = `<tr><td>${time}</td><td>${subject}</td></tr>`;
+        //             timetableBody.innerHTML += row;
+        //         }
+        //         document.getElementById("timetableContainer").style.display = "block";
+        //     } else {
+        //         timetableBody.innerHTML = `<tr><td colspan="2">No timetable available</td></tr>`;
+        //     }
+        // }
+
+        // function toggleTimetable() {
+        //     const timetableContainer = document.getElementById("timetableContainer");
+        //     const saveButton = document.getElementById("saveButton");
+        //     const toggleButton = document.getElementById("toggleButton");
+
+        //     if (timetableContainer.style.display === "none") {
+        //         timetableContainer.style.display = "block";
+        //         saveButton.style.display = "block";
+        //         toggleButton.textContent = "Hide Timetable";
+        //     } else {
+        //         timetableContainer.style.display = "none";
+        //         saveButton.style.display = "none";
+        //         toggleButton.textContent = "Display Current TT";
+        //     }
+        // }
+
+        // async function saveTimetable() {
+        //     try {
+        //         console.log("✅ Save button clicked");
     
-                const response = await fetch('/board/save-current-display', {
-                    method: 'POST',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ timetable: timetableData, board: boardData })
-                });
+        //         let timetableData = {};
+        //         const rows = document.querySelectorAll("#timetableContainer table tr");
     
-                console.log("✅ Fetch request sent. Awaiting response...");
+        //         rows.forEach((row, index) => {
+        //             if (index === 0) return; // Skip header row
+        //             const cells = row.getElementsByTagName("td");
+        //             if (cells.length === 2) {
+        //                 timetableData[cells[0].textContent] = cells[1].textContent;
+        //             }
+        //         });
     
-                const result = await response.json();
-                console.log("✅ Server response:", result);
+        //         // Get full board details from the page
+        //         const boardData = {
+        //             boardId: "<%= board.boardId %>",  // Ensure this is passed in EJS
+        //             message: document.getElementById("boardMessage").textContent,
+        //             date: "<%= board.date %>",
+        //             startTime: "<%= board.startTime %>",
+        //             endTime: "<%= board.endTime %>",
+        //             timeRange: "<%= board.timeRange %>",
+        //             lastUpdated: "<%= board.lastUpdated %>"
+        //         };
+
+        //         console.log("✅ Sending timetable and full board object:", timetableData, boardData);
     
-                if (result.success) {
-                    alert("Timetable and board message saved successfully!");
-                    window.location.href = result.redirect; // Redirect dynamically
-                } else {
-                    alert("Failed to save timetable.");
-                }
-            } catch (error) {
-                console.error("❌ Error saving timetable:", error);
-            }
-        }
+        //         const response = await fetch('/board/save-current-display', {
+        //             method: 'POST',
+        //             headers: { "Content-Type": "application/json" },
+        //             body: JSON.stringify({ timetable: timetableData, board: boardData })
+        //         });
+    
+        //         console.log("✅ Fetch request sent. Awaiting response...");
+    
+        //         const result = await response.json();
+        //         console.log("✅ Server response:", result);
+    
+        //         if (result.success) {
+        //             alert("Timetable and board message saved successfully!");
+        //             window.location.href = result.redirect; // Redirect dynamically
+        //         } else {
+        //             alert("Failed to save timetable.");
+        //         }
+        //     } catch (error) {
+        //         console.error("❌ Error saving timetable:", error);
+        //     }
+        // }
     </script>
 </body>
 </html>

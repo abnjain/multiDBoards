@@ -59,8 +59,6 @@ app.get("/", isLoggedIn, (req, res) => {
         message: "Welcome to Smart Display!",
         lastUpdated: new Date().toLocaleString()
     };
-    console.log("🚀 Display Data:", displayData);
-    
     res.render("index", { displayData, userId: req.session.userId });
 });
 
