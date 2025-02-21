@@ -39,14 +39,9 @@ module.exports = {
             // 🔹 Extract available days
             const availableDays = Object.keys(timetable);
 
-            // 🔹 Fetch board details
-            const boardSnapshot = await displaysRef.child(boardId).once("value");
-            const boardData = boardSnapshot.val() || {};
-
             // ✅ Save selected timetable class & board to `eventsRef`
             const eventData = {
                 boardId,
-                boardTitle: boardData.title || "Unknown Board",
                 timetableID: className
             };
             // ✅ Clear message first
