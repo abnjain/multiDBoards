@@ -1,92 +1,119 @@
-const path = require("path");
-const fs = require("fs");
-
 // Import Firebase config (initializes Firebase Admin SDK)
-const { db, usersRef, displaysRef, timetableRef } = require("../config/firebase");
-
-// Path to the JSON file
-const timetablePath = path.join(__dirname, "../timetable.json");
-
-// Load timetable from JSON file
-function loadTimetable() {
-    if (!fs.existsSync(timetablePath)) {
-        return Array(8).fill(null).map(() => Array(6).fill(""));  // Ensuring a valid 8x6 matrix
-    }
-    return JSON.parse(fs.readFileSync(timetablePath, "utf8"));
-}
-
-// Save timetable to JSON file
-function saveTimetable(timetable) {
-    try {
-        fs.writeFileSync(timetablePath, JSON.stringify(timetable, null, 2));
-        console.log("Timetable saved successfully.");
-    } catch (error) {
-        console.error("Error saving timetable:", error);
-    }
-}
-// Load initial timetable
-let timetable = loadTimetable()
+const { db, usersRef, displaysRef, timetableRef, eventsRef } = require("../config/firebase");
 
 module.exports = {
     viewTT: async (req, res) => {
         try {
-            // 🔹 Fetch timetable data from Firebase Realtime Database
+            // 🔹 Fetch all timetable data from Firebase
             const timetableSnapshot = await timetableRef.once("value");
-            const timetableData = timetableSnapshot.val() || {}; // Ensure it's not null
+            const timetableData = timetableSnapshot.val() || {};
+    
+            // 🔹 Fetch all display boards
+            const displaysSnapshot = await displaysRef.once("value");
+            const displays = displaysSnapshot.val() || {}; // Get all boards            
+    
+            // 🔹 Extract class names (e.g., "MtechCS2Sem", "MtechIASE2Sem")
+            const classNames = Object.keys(timetableData);
+            const boardNames = Object.keys(displays);
 
-            console.log("✅ Timetable Data from Firebase:", JSON.stringify(timetableData, null, 2));
-
-            // 🔹 Extract Days & Times (Sorting times in order)
-            const days = Object.keys(timetableData);
-            const times = [...new Set(days.flatMap(day => Object.keys(timetableData[day])))]
-                .sort((a, b) => a.localeCompare(b)); // Sort times in ascending order
-
-            // 🔹 Convert to structured array for rendering
-            const structuredTimetable = times.map(time => {
-                const row = { time };
-                days.forEach(day => {
-                    row[day] = timetableData[day][time] || ""; // If no entry, leave blank
-                });
-                return row;
-            });
-
-            // 🔹 Render timetable.ejs
-            res.render("timetable", { timetable: structuredTimetable, days, times });
-
+    
+            // ✅ Pass displays to EJS
+            res.render("timetable", { displays, classNames, boardNames, selectedClass: null, selectedDay: null, timetable: {} });
+    
         } catch (error) {
-            console.error("❌ Error fetching timetable data:", error);
+            console.error("❌ Error fetching timetable:", error);
             res.status(500).send("Internal Server Error");
         }
     },
+    
 
-    saveTT: (req, res) => {
-        console.log("Received Timetable Data:", req.body);
-    
-        let { timetable } = req.body;
-    
-        if (!Array.isArray(timetable)) {
-            return res.status(400).json({ success: false, message: "Invalid timetable format" });
+    getTimetableByClass: async (req, res) => {
+        try {
+            const { className } = req.params;
+            const { boardId } = req.query; // Receive boardId from frontend
+
+            // 🔹 Fetch timetable for the selected class
+            const classSnapshot = await timetableRef.child(className).once("value");
+            const timetable = classSnapshot.val() || {};
+
+            // 🔹 Extract available days
+            const availableDays = Object.keys(timetable);
+
+            // 🔹 Fetch board details
+            const boardSnapshot = await displaysRef.child(boardId).once("value");
+            const boardData = boardSnapshot.val() || {};
+
+            // ✅ Save selected timetable class & board to `eventsRef`
+            const eventData = {
+                boardId,
+                boardTitle: boardData.title || "Unknown Board",
+                timetableID: className
+            };
+            // ✅ Clear message first
+            await eventsRef.child("message").set(null);
+            await eventsRef.child("timetable").set(eventData);
+
+            res.json({ success: true, availableDays, timetable });
+
+        } catch (error) {
+            console.error("❌ Error fetching timetable:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
         }
-    
-        saveTimetable(timetable);
-        res.json({ success: true, message: "Timetable saved successfully" });
     },
 
-    updateTT: (req, res) => {
-        const { row, col, value } = req.body;
-    
-        // Ensure that row and col are within the valid range
-        if (row < 0 || row >= timetable.length || col < 0 || col >= timetable[row].length) {
-            return res.status(400).json({ success: false, message: "Invalid cell position" });
-        }
-    
-        // Update the timetable cell
-        timetable[row][col] = value;
-    
-        // Save the updated timetable
-        saveTimetable(timetable);
-    
-        res.json({ success: true, message: "Timetable updated successfully" });
-    }
+    getTimetableByClassAndDay: async (req, res) => {
+        try {
+            const { className, day } = req.params;
 
-}
+            // 🔹 Fetch timetable for the specific class & day
+            const daySnapshot = await timetableRef.child(className).child(day).once("value");
+            const timetable = daySnapshot.val() || {};
+
+            res.json({ success: true, timetable });
+
+        } catch (error) {
+            console.error("❌ Error fetching timetable:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+    },
+
+    saveTT: async (req, res) => {
+        try {
+            const { className, timetable } = req.body;
+            console.log("saveTT "+req.body);
+
+            if (!className || typeof timetable !== "object") {
+                return res.status(400).json({ success: false, message: "Invalid data format" });
+            }
+
+            // 🔹 Save timetable for the selected class
+            await timetableRef.child(className).set(timetable);
+
+            res.json({ success: true, message: "Timetable saved successfully!" });
+
+        } catch (error) {
+            console.error("❌ Error saving timetable:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+    },
+
+    updateTT: async (req, res) => {
+        try {
+            const { className, day, time, subject } = req.body;
+            console.log("updateTT "+req.body);
+
+            if (!className || !day || !time || !subject) {
+                return res.status(400).json({ success: false, message: "All fields are required" });
+            }
+
+            // 🔹 Update the timetable in Firebase
+            await timetableRef.child(`${className}/${day}/${time}`).set(subject);
+
+            res.json({ success: true, message: "Timetable updated successfully!" });
+
+        } catch (error) {
+            console.error("❌ Error updating timetable:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+};

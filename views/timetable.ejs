@@ -3,71 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Time Table</title>
+    <title>Class Timetable</title>
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
 
     <div class="container">
         <a href="/" class="btn">Back to Dashboard</a>
-        <h1>Class Time Table</h1>
+        <h1>Class Timetable</h1>
 
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <% for (let day of days) { %>
-                        <th><%= day %></th>
-                    <% } %>
-                </tr>
-            </thead>
-            <tbody>
-                <% for (let entry of timetable) { %>
-                    <tr>
-                        <td><%= entry.time %></td>
-                        <% for (let day of days) { %>
-                            <td contenteditable="true"
-                                oninput="updateCell('<%= entry.time %>', '<%= day %>', this)">
-                                <%= entry[day] %>
-                            </td>
-                        <% } %>
-                    </tr>
+        <!-- Select Board -->
+        <label for="boardSelect"><strong>Select Display Board:</strong></label>
+        <select id="boardSelect">
+            <% if (Object.keys(displays).length > 0) { %>
+                <% for (let boardId in displays) { %>
+                    <option value="<%= boardId %>"><%= displays[boardId].title %></option>
                 <% } %>
-            </tbody>
-        </table>
-        <button onclick="saveTimetable()">Save Timetable</button>
+            <% } else { %>
+                <option disabled>No Boards Available</option>
+            <% } %>
+        </select>
+<br><br><br>
+
+        <!-- Dropdown for selecting class -->
+        <label for="classSelect"><strong>Select Class:</strong></label>
+        <select id="classSelect" onchange="loadDays()">
+            <option value="">-- Select Class --</option>
+            <% classNames.forEach(className => { %>
+                <option value="<%= className %>"><%= className %></option>
+            <% }) %>
+        </select>
+<br><br><br>
+        <!-- Dropdown for selecting day -->
+        <div id="daySelectContainer" style="display: none;">
+            <label for="daySelect"><strong>Select Day:</strong></label>
+            <select id="daySelect" onchange="loadTimetable()">
+                <option value="">-- Select Day --</option>
+            </select>
+        </div>
+
+        <!-- Timetable Display -->
+        <div id="timetableContainer" style="display: none;">
+            <h2>Timetable</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Subject</th>
+                    </tr>
+                </thead>
+                <tbody id="timetableBody">
+                    <tr><td colspan="2">Select a class and day to view timetable.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // Function to update individual cell
-        function updateCell(time, day, element) {
-            const value = element.innerText.trim();
+        async function loadDays() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectedBoard = document.getElementById("boardSelect").value;
+            const daySelect = document.getElementById("daySelect");
+            const daySelectContainer = document.getElementById("daySelectContainer");
 
-            fetch("/tt/update-timetable", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ time, day, value })  // Send updated cell data to backend
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Updated Successfully:", data);
-            })
-            .catch(error => console.error("Error updating timetable:", error));
+            if (!selectedClass) {
+                daySelectContainer.style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tt/get-timetable/${selectedClass}?boardId=${selectedBoard}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    daySelect.innerHTML = '<option value="">-- Select Day --</option>';
+                    data.availableDays.forEach(day => {
+                        daySelect.innerHTML += `<option value="${day}">${day}</option>`;
+                    });
+
+                    daySelectContainer.style.display = "block";
+                } else {
+                    console.error("❌ Error fetching days:", data.message);
+                }
+            } catch (error) {
+                console.error("❌ Fetch error:", error);
+            }
         }
 
-        // Function to save entire timetable
-        function saveTimetable() {
-            fetch("/tt/save-timetable", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ timetable })  // Send the whole timetable to backend
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Timetable saved successfully:", data);
-                alert("Timetable saved!");
-            })
-            .catch(error => console.error("Error saving timetable:", error));
+        async function loadTimetable() {
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectedDay = document.getElementById("daySelect").value;
+
+            if (!selectedClass || !selectedDay) {
+                document.getElementById("timetableContainer").style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tt/get-timetable/${selectedClass}/${selectedDay}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderTimetable(data.timetable);
+                } else {
+                    console.error("❌ Error fetching timetable:", data.message);
+                }
+            } catch (error) {
+                console.error("❌ Fetch error:", error);
+            }
+        }
+
+        function renderTimetable(timetable) {
+            const timetableBody = document.getElementById("timetableBody");
+            timetableBody.innerHTML = ""; 
+
+            for (const [time, subject] of Object.entries(timetable)) {
+                timetableBody.innerHTML += `<tr><td>${time}</td><td>${subject}</td></tr>`;
+            }
+            document.getElementById("timetableContainer").style.display = "block";
         }
     </script>
 

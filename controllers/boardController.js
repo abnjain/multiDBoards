@@ -47,7 +47,7 @@ module.exports = {
     
             // Fetch timetable data
             let timetableSnapshot = await timetableRef.once("value");
-            let timetable = timetableSnapshot.val();
+            let timetable = timetableSnapshot.val() || {};
     
             // If no event timetable exists, fetch from timetableRef
             timetableSnapshot = await timetableRef.once("value");
