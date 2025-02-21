@@ -2,11 +2,11 @@
 const admin = require("firebase-admin");
 require("dotenv").config();
 
+const serviceAccount = JSON.parse(process.env.FIREBASE_SECRETS);
+
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(
-      require("../multidboard-firebase-adminsdk-fbsvc-3c68048ca9.json")
-    ),
+    credential: admin.credential.cert(serviceAccount),
     databaseURL: process.env.FIREBASE_DB_URL
   });
 }
