@@ -14,7 +14,7 @@
 
         <!-- Select Board -->
         <label for="boardSelect"><strong>Select Display Board:</strong></label>
-        <select id="boardSelect">
+        <select id="boardSelect" onchange="checkSelections()">
             <% if (Object.keys(displays).length > 0) { %>
                 <% for (let boardId in displays) { %>
                     <option value="<%= boardId %>"><%= displays[boardId].title %></option>
@@ -23,7 +23,7 @@
                 <option disabled>No Boards Available</option>
             <% } %>
         </select>
-<br><br><br>
+        <br><br>
 
         <!-- Dropdown for selecting class -->
         <label for="classSelect"><strong>Select Class:</strong></label>
@@ -33,14 +33,22 @@
                 <option value="<%= className %>"><%= className %></option>
             <% }) %>
         </select>
-<br><br><br>
+        <br><br>
+
         <!-- Dropdown for selecting day -->
         <div id="daySelectContainer" style="display: none;">
             <label for="daySelect"><strong>Select Day:</strong></label>
-            <select id="daySelect" onchange="loadTimetable()">
+            <select id="daySelect" onchange="checkSelections()">
                 <option value="">-- Select Day --</option>
             </select>
         </div>
+        <br><br>
+
+        <!-- Display TT Button -->
+        <button id="displayButton" style="display: none;" onclick="loadTimetable()">Display TT</button>
+
+        <!-- Save TT Button -->
+        <button id="saveButton" style="display: none;" onclick="saveTimetable()">Save TT</button>
 
         <!-- Timetable Display -->
         <div id="timetableContainer" style="display: none;">
@@ -60,18 +68,34 @@
     </div>
 
     <script>
+        function checkSelections() {
+            const boardSelected = document.getElementById("boardSelect").value;
+            const classSelected = document.getElementById("classSelect").value;
+            const daySelected = document.getElementById("daySelect").value;
+            const displayButton = document.getElementById("displayButton");
+
+            // Show "Display TT" button only if all selections are made
+            if (boardSelected && classSelected && daySelected) {
+                displayButton.style.display = "block";
+            } else {
+                displayButton.style.display = "none";
+            }
+        }
+
         async function loadDays() {
             const selectedClass = document.getElementById("classSelect").value;
             const selectedBoard = document.getElementById("boardSelect").value;
             const daySelect = document.getElementById("daySelect");
             const daySelectContainer = document.getElementById("daySelectContainer");
 
-            if (!selectedClass) {
+            if (!selectedClass || !selectedBoard) {
+                console.warn("⚠️ Missing class or board selection");
                 daySelectContainer.style.display = "none";
                 return;
             }
 
             try {
+                console.log(`✅ Fetching timetable for class: ${selectedClass}, board: ${selectedBoard}`);
                 const response = await fetch(`/tt/get-timetable/${selectedClass}?boardId=${selectedBoard}`);
                 const data = await response.json();
 
@@ -93,9 +117,11 @@
         async function loadTimetable() {
             const selectedClass = document.getElementById("classSelect").value;
             const selectedDay = document.getElementById("daySelect").value;
+            const timetableContainer = document.getElementById("timetableContainer");
+            const saveButton = document.getElementById("saveButton");
 
             if (!selectedClass || !selectedDay) {
-                document.getElementById("timetableContainer").style.display = "none";
+                timetableContainer.style.display = "none";
                 return;
             }
 
@@ -105,6 +131,7 @@
 
                 if (data.success) {
                     renderTimetable(data.timetable);
+                    saveButton.style.display = "block"; // Show "Save TT" button
                 } else {
                     console.error("❌ Error fetching timetable:", data.message);
                 }
@@ -121,6 +148,45 @@
                 timetableBody.innerHTML += `<tr><td>${time}</td><td>${subject}</td></tr>`;
             }
             document.getElementById("timetableContainer").style.display = "block";
+        }
+
+        async function saveTimetable() {
+            const selectedBoard = document.getElementById("boardSelect").value;
+            const selectedClass = document.getElementById("classSelect").value;
+            const selectedDay = document.getElementById("daySelect").value;
+            const timetableRows = document.querySelectorAll("#timetableBody tr");
+
+            let timetableData = {};
+            timetableRows.forEach(row => {
+                const cells = row.getElementsByTagName("td");
+                if (cells.length === 2) {
+                    timetableData[cells[0].textContent] = cells[1].textContent;
+                }
+            });
+
+            const payload = {
+                boardId: selectedBoard,
+                className: selectedClass,
+                day: selectedDay,
+                timetable: timetableData
+            };
+
+            try {
+                const response = await fetch('/tt/save-timetable', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Timetable saved successfully!");
+                } else {
+                    alert("Failed to save timetable.");
+                }
+            } catch (error) {
+                console.error("❌ Error saving timetable:", error);
+            }
         }
     </script>
 

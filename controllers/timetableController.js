@@ -30,31 +30,42 @@ module.exports = {
     getTimetableByClass: async (req, res) => {
         try {
             const { className } = req.params;
-            const { boardId } = req.query; // Receive boardId from frontend
-
-            // 🔹 Fetch timetable for the selected class
+            const { boardId } = req.query; // Ensure boardId is retrieved from query parameters
+    
+            if (!className || !boardId) {
+                return res.status(400).json({ success: false, message: "Missing className or boardId" });
+            }
+    
+            console.log(`✅ Fetching timetable for class: ${className}, board: ${boardId}`);
+    
+            // Fetch timetable for the selected class
             const classSnapshot = await timetableRef.child(className).once("value");
             const timetable = classSnapshot.val() || {};
-
-            // 🔹 Extract available days
+    
+            // Extract available days
             const availableDays = Object.keys(timetable);
-
-            // ✅ Save selected timetable class & board to `eventsRef`
-            const eventData = {
-                boardId,
-                timetableID: className
-            };
-            // ✅ Clear message first
-            await eventsRef.child("message").set(null);
-            await eventsRef.child("timetable").set(eventData);
-
+    
+            // ✅ Ensure boardId is defined before updating Firebase
+            if (boardId) {
+                const eventTT = {
+                    boardId,
+                    timetableID: className
+                };
+    
+                await eventsRef.child("timetable").update(eventTT);
+                console.log("✅ Updated eventsRef with:", eventTT);
+            } else {
+                console.warn("⚠️ boardId is undefined, skipping Firebase update.");
+            }
+    
             res.json({ success: true, availableDays, timetable });
-
+    
         } catch (error) {
             console.error("❌ Error fetching timetable:", error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
         }
     },
+    
 
     getTimetableByClassAndDay: async (req, res) => {
         try {
@@ -74,15 +85,17 @@ module.exports = {
 
     saveTT: async (req, res) => {
         try {
-            const { className, timetable } = req.body;
-            console.log("saveTT "+req.body);
+            const { boardId, className, day, timetable } = req.body;
 
-            if (!className || typeof timetable !== "object") {
-                return res.status(400).json({ success: false, message: "Invalid data format" });
+            if (!boardId || !className || !day || !timetable) {
+                return res.status(400).json({ success: false, message: "Missing required fields" });
             }
 
-            // 🔹 Save timetable for the selected class
-            await timetableRef.child(className).set(timetable);
+            // Save timetable under the correct class and day
+            await timetableRef.child(className).child(day).set(timetable);
+
+            // Save board reference
+            await eventsRef.child("message").update({ boardId, timetableClass: className });
 
             res.json({ success: true, message: "Timetable saved successfully!" });
 
