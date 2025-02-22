@@ -35,9 +35,7 @@ module.exports = {
             if (!className || !boardId) {
                 return res.status(400).json({ success: false, message: "Missing className or boardId" });
             }
-    
-            console.log(`✅ Fetching timetable for class: ${className}, board: ${boardId}`);
-    
+        
             // Fetch timetable for the selected class
             const classSnapshot = await timetableRef.child(className).once("value");
             const timetable = classSnapshot.val() || {};
@@ -48,12 +46,10 @@ module.exports = {
             // ✅ Ensure boardId is defined before updating Firebase
             if (boardId) {
                 const eventTT = {
-                    boardId,
                     timetableID: className
                 };
     
-                await eventsRef.child("timetable").update(eventTT);
-                console.log("✅ Updated eventsRef with:", eventTT);
+                await displaysRef.child(`${boardId}`).update(eventTT);
             } else {
                 console.warn("⚠️ boardId is undefined, skipping Firebase update.");
             }

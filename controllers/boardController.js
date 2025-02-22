@@ -113,6 +113,42 @@ module.exports = {
             console.error("❌ Error saving timetable:", error);
             res.status(500).json({ success: false, message: "Internal Server Error" });
         }
+    },
+
+    addBoard: (req, res) => {
+        try {
+            res.render("addNewBoard");
+        } catch (error) {
+            console.error("Error Adding New Display Board:", error);
+            res.status(500).send("Internal Server Error");
+        }
+    },
+
+    saveNewBoard: async (req, res) => {
+        try {
+            const { boardId, title } = req.body;
+
+            if (!boardId || !title) {
+                return res.status(400).json({ success: false, message: "All fields are required" });
+            }
+
+            const newBoardId = `18122023A0${boardId}`;
+
+            const newBoard = { boardId: newBoardId, title, lastUpdated: new Date().toISOString() };
+
+            const boardSnapshot = await displaysRef.child(newBoardId).once("value");
+            const boardData = boardSnapshot.val() || {}; // Get existing data or empty object
+
+            if (Object.keys(boardData).length !== 0) {
+                return res.json({ success: false, redirect: "/", message: "Board ID already exists" });
+            }
+
+            await displaysRef.child(newBoardId).set(newBoard);
+
+            res.json({ success: true, redirect: "/", message: "New board added successfully", board: newBoard });
+        } catch (error) {
+            console.error("Error Adding New Display Board:", error);
+            res.json({ success: false, redirect: "/", message: "Internal Server Error", error: error.message });
+        }
     }
-             
 };

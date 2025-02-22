@@ -78,8 +78,8 @@ module.exports = {
                 return res.redirect('/login');
             }
     
-            const accessToken = generateAccessToken({ id: userId, email: userData.email });
-            const refreshToken = generateRefreshToken({ id: userId, email: userData.email });
+            const accessToken = generateAccessToken({ id: userId, email: userData.email, isAdmin: userData.isAdmin });
+            const refreshToken = generateRefreshToken({ id: userId, email: userData.email, isAdmin: userData.isAdmin });
     
             await usersRef.child(userId).update({ refreshToken });
     
