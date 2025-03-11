@@ -3,9 +3,10 @@ const { db, usersRef, displaysRef, timetableRef, eventsRef } = require("../confi
 module.exports = {
     displayBoard: async (req, res) => {
         try {
+            const { dBoardId } = req.params;
             const snapshot = await displaysRef.once("value");
             const displays = snapshot.val() || {};
-            res.render("board", { displays });
+            res.render("board", { displays, dBoardId });
         } catch (error) {
             console.error("Error fetching display boards:", error);
             res.status(500).send("Internal Server Error");
@@ -13,15 +14,16 @@ module.exports = {
     },
 
     updateBoard: async (req, res) => {
-        const { boardId, message, date, startTime, endTime } = req.body;
+        const { dBoardId } = req.params;
+        const { message, date, startTime, endTime } = req.body;
 
-        if (!boardId || !message || !date || !startTime || !endTime) {
+        if (!message || !date || !startTime || !endTime) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
         try {
             // Fetch existing board data to keep all key-value pairs
-            const boardSnapshot = await displaysRef.child(boardId).once("value");
+            const boardSnapshot = await displaysRef.child(dBoardId).once("value");
             const existingBoardData = boardSnapshot.val() || {}; // Get existing data or empty object
 
             // Define timeRange explicitly
@@ -29,7 +31,7 @@ module.exports = {
     
             const boardData = { 
                 ...existingBoardData,
-                boardId, 
+                boardID: dBoardId, 
                 message, 
                 date, 
                 startTime, 
@@ -39,11 +41,7 @@ module.exports = {
             };
     
             // Update Firebase with the boardData object
-            await displaysRef.child(boardId).update(boardData);
-            const eventMessage = {
-                boardId
-            };
-            await eventsRef.child("message").update(eventMessage);
+            await displaysRef.child(dBoardId).update(boardData);
     
             // Fetch timetable data
             let timetableSnapshot = await timetableRef.once("value");
@@ -149,6 +147,42 @@ module.exports = {
         } catch (error) {
             console.error("Error Adding New Display Board:", error);
             res.json({ success: false, redirect: "/", message: "Internal Server Error", error: error.message });
+        }
+    },
+
+    showMessageForm: (req, res) => {
+        const { boardId } = req.params;
+        res.render('showMessageForm', { boardId });
+    },
+
+    showMessage: async (req, res) => {
+        const { boardId } = req.params;
+        const { message } = req.body;
+
+        try {
+            await displaysRef.child(boardId).update({ message, lastUpdated: new Date().toISOString() });
+            res.redirect('/');
+        } catch (error) {
+            console.error("Error showing message on board:", error);
+            res.status(500).send("Internal Server Error");
+        }
+    },
+
+    updateTimetableForm: (req, res) => {
+        const { boardId } = req.params;
+        res.render('updateTimetableForm', { boardId });
+    },
+
+    updateTimetable: async (req, res) => {
+        const { boardId } = req.params;
+        const { timetable } = req.body;
+
+        try {
+            await timetableRef.child(boardId).set(timetable);
+            res.redirect('/');
+        } catch (error) {
+            console.error("Error updating timetable:", error);
+            res.status(500).send("Internal Server Error");
         }
     }
 };

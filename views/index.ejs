@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -40,5 +40,87 @@
         setInterval(updateTime, 1000);
       </script>      
 
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCSIT Display Boards</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <div><a href="/auth/logout" class="lOutBtn">Logout</a></div>
+
+    <div class="container">
+        <div id="displayDataJSON" style="display:none;">
+            <%= JSON.stringify(displayData) %>
+        </div>
+        <h1><%= displayData.title %></h1>
+        <% if (displayData.message == "Welcome to Smart Display!") { %>
+            <p class="message">Welcome to Smart Display!</p>
+            <% } else { %>
+            <p class="message">Currently Displaying: <%= displayData.message %></p>
+        <% } %>
+        
+        <p class="timestamp" id="lastUpdated">Last Updated: <%= displayData.lastUpdated %></p>
+
+        <div class="bContainer">
+            <% if (displayRef) { %>
+                <% Object.keys(displayRef).forEach(board => { %>
+                    <div class="bIDContainer">
+                        <div class="bIDContainerTitle">
+                            <p class="dbun">DBUN : <%= displayRef[board].boardId %></p> <br>
+                            <p class="title"><%= displayRef[board].title %></p>
+                        </div>
+                        <div class="bIDContainerBody">
+                            <p class="message"><%= displayRef[board].message %></p><br>
+                            <button class="btn" onclick="openModal('<%= displayRef[board].boardId %>', '<%= displayRef[board].title %>')">Change Display</button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p class="message">No boards available yet</p>
+            <% } %>
+            <div><a href="/board/add-board"><img src="/images/circle-plus.svg" alt="plusSign" class="plusSign"></a></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="changeDisplayModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Change Display Options</h2>
+            <p id="modalBoardId"></p>
+            <p id="modalBoardTitle"></p>
+            <a href="#" id="showMessageLink" class="btn">Show Message on Board</a>
+            <a href="#" id="updateTimetableLink" class="btn">Update Timetable</a>
+        </div>
+    </div>
+
+    <script>
+        function openModal(boardId, title) {
+            document.getElementById('modalBoardId').textContent = 'Board ID: ' + boardId;
+            document.getElementById('modalBoardTitle').textContent = 'Board Title: ' + title;
+            document.getElementById('showMessageLink').href = '/board/board/' + boardId;
+            document.getElementById('updateTimetableLink').href = '/board/update-timetable/' + boardId;
+            document.getElementById('changeDisplayModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('changeDisplayModal').style.display = 'none';
+        }
+
+        function updateTime() {
+            const timeElement = document.getElementById("lastUpdated");
+            if(timeElement) {
+                const now = new Date();
+                timeElement.textContent = "Last Updated: " + now.toLocaleString();
+            }
+        }
+        setInterval(updateTime, 1000);
+    </script>
 </body>
 </html>

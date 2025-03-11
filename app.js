@@ -4,12 +4,14 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const MemoryStore = require('memorystore')(session);
+const { get, child } = require("firebase/database");
 
 // require("./config/mongoDB");
-require("./config/firebase");
+const { usersRef, displaysRef, timetableRef } = require("./config/firebase");
 require("dotenv").config();
 
 const port = process.env.PORT || 3000;
+// = require("./config/firebase");
 
 // Session configuration
 app.use(session({
@@ -52,14 +54,31 @@ app.get("/login", (req, res) => {
     res.render("login", { title: "Display Boards" });
 });
 
-// Home route
-app.get("/", isLoggedIn, (req, res) => {
+app.get("/", isLoggedIn, async (req, res) => {
     const displayData = req.session.displayData || {
         title: "Cloud IoT Display Board",
         message: "Welcome to Smart Display!",
         lastUpdated: new Date().toLocaleString()
     };
-    res.render("index", { displayData, userId: req.session.userId });
+
+    try {
+        let displayRef = {};
+        const displaySnapshot = await get(displaysRef); // Use get() for Firebase Realtime Database
+        if (displaySnapshot.exists()) {
+            displayRef = displaySnapshot.val();
+        }
+
+        let timetableRefData = {};
+        const timetableSnapshot = await get(timetableRef); // Use get() instead of once()
+        if (timetableSnapshot.exists()) {
+            timetableRefData = timetableSnapshot.val();
+        }
+
+        res.render("index", { displayData, displayRef, timetableRef: timetableRefData, userId: req.session.userId });
+    } catch (error) {
+        console.error("Error fetching displayRef:", error);
+        res.render("index", { displayData, displayRef: {}, timetableRef: {}, userId: req.session.userId });
+    }
 });
 
 

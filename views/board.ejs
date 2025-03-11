@@ -12,21 +12,10 @@
         <a href="/" class="btn">Back to Dashboard</a>
         <h1>Update Display Board</h1>
 
-        <form action="/board/update-board" method="POST">
-            <label for="boardId">Select Display Board:</label>
-            <select name="boardId" id="boardId" required>
-                <% if (displays) { %>
-                    <% for (let key in displays) { %>
-                        <% if (displays[key] && displays[key].title) { %>
-                            <option value="<%= key %>"><%= displays[key].title %></option>
-                        <% } %>
-                    <% } %>
-                <% } else { %>
-                    <option disabled>No Boards Available</option>
-                <% } %>
-            </select>
-            <br>
-            <br>
+        <form action="/board/update-board/<%= dBoardId %>" method="POST">
+            <input type="hidden" name="dBoardId" value="<%= dBoardId %>">
+            <p style="font-size: 20px; font-weight: 700;"><%= displays[dBoardId] ? displays[dBoardId].title : '' %></p>
+            
             <label for="message">New Message:</label>
             <textarea name="message" id="message" required></textarea>
             <br>
